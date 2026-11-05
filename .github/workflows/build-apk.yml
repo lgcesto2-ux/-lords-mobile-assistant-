@@ -1,0 +1,48 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get source code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Create Android project
+        run: flutter create . --platforms=android --project-name lords_mobile_assistant
+
+      - name: Organize source files
+        run: |
+          mkdir -p lib test
+          for f in *.dart; do
+            [ "$f" = "widget_test.dart" ] || cp "$f" lib/
+          done
+          cp widget_test.dart test/widget_test.dart
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: lords-mobile-assistant-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
