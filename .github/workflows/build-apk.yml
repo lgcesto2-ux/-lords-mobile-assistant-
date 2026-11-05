@@ -27,12 +27,17 @@ jobs:
       - name: Create Android project
         run: flutter create . --platforms=android --project-name lords_mobile_assistant
 
-      - name: Organize source files
+      - name: Organize project files
         run: |
-          mkdir -p lib test
-          for f in *.dart; do
-            [ "$f" = "widget_test.dart" ] || cp "$f" lib/
-          done
+          mkdir -p lib/screens lib/services test
+          cp main.dart lib/main.dart
+          cp dashboard_screen.dart lib/screens/
+          cp events_screen.dart lib/screens/
+          cp resources_screen.dart lib/screens/
+          cp shields_screen.dart lib/screens/
+          cp timers_screen.dart lib/screens/
+          cp notification_service.dart lib/services/
+          cp storage_service.dart lib/services/
           cp widget_test.dart test/widget_test.dart
 
       - name: Install dependencies
@@ -41,7 +46,7 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
 
-      - name: Save APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: lords-mobile-assistant-apk
