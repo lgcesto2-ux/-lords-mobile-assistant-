@@ -1,3 +1,4 @@
+
 name: Build Android APK
 
 on:
@@ -26,11 +27,39 @@ jobs:
 
       - name: Create Android project
         run: flutter create . --platforms=android --project-name lords_mobile_assistant
-      
-      - name: Enable core library desugaring
+
+      - name: Configure Android desugaring
         run: |
-          sed -i '/compileOptions {/a\        isCoreLibraryDesugaringEnabled = true' android/app/build.gradle.kts
-          sed -i '/dependencies {/a\    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")' android/app/build.gradle.kts
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path("android/app/build.gradle.kts")
+          s = p.read_text()
+
+          if "isCoreLibraryDesugaringEnabled" not in s:
+              s, count = re.subn(
+                  r'(\bcompileOptions\s*\{)',
+                  r'\1\n        isCoreLibraryDesugaringEnabled = true',
+                  s,
+                  count=1
+              )
+              if count == 0:
+                  raise RuntimeError("compileOptions block not found")
+
+          if "coreLibraryDesugaring(" not in s:
+              match = re.search(r'\bdependencies\s*\{', s)
+              dependency = '\n    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")'
+              if match:
+                  s = s[:match.end()] + dependency + s[match.end():]
+              else:
+                  s += '\ndependencies {' + dependency + '\n}\n'
+
+          p.write_text(s)
+          print("Desugaring configured successfully.")
+
+          PY
+
       - name: Organize project files
         run: |
           mkdir -p lib/screens lib/services test
@@ -55,3 +84,4 @@ jobs:
         with:
           name: lords-mobile-assistant-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          
