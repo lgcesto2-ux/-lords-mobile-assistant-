@@ -13,7 +13,7 @@ class NotificationService {
   Future<void> initialize() async {
     tzdata.initializeTimeZones();
     final zone = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(zone.identifier));
+    tz.setLocalLocation(tz.getLocation(zone));
 
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const windows = WindowsInitializationSettings(
@@ -22,7 +22,7 @@ class NotificationService {
       guid: '9d4d91a4-4f42-4c54-9c9e-5e3e8f010001',
     );
     const settings = InitializationSettings(android: android, windows: windows);
-    await _plugin.initialize(settings: settings);
+    await _plugin.initialize(settings);
 
     final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
@@ -58,5 +58,5 @@ class NotificationService {
     );
   }
 
-  Future<void> cancel(int id) => _plugin.cancel(id: id);
+  Future<void> cancel(int id) => _plugin.cancel(id);
 }
