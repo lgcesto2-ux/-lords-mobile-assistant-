@@ -26,11 +26,11 @@ jobs:
 
       - name: Create Android project
         run: flutter create . --platforms=android --project-name lords_mobile_assistant
-        
-      - name: Enable core library desugaring
+
+              - name: Enable core library desugaring
         run: |
-          sed -i '/compileOptions {/a\        coreLibraryDesugaringEnabled true' android/app/build.gradle
-          sed -i '/dependencies {/a\    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.4"' android/app/build.gradle
+          sed -i '/compileOptions {/a\        isCoreLibraryDesugaringEnabled = true' android/app/build.gradle.kts
+          sed -i '/dependencies {/a\    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")' android/app/build.gradle.kts
       - name: Organize project files
         run: |
           mkdir -p lib/screens lib/services test
